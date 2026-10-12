@@ -1,0 +1,29 @@
+---
+- name: Deploy app container
+  hosts: app
+  become: yes
+  tasks:
+    - name: Install Docker and Python Docker library
+      apt:
+        name:
+          - docker.io
+          - python3-docker
+        state: present
+        update_cache: yes
+
+    - name: Make sure Docker is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Run the application container
+      community.docker.docker_container:
+        name: myapp
+        image: "{{ image }}"
+        pull: true
+        state: started
+        recreate: true
+        restart_policy: always
+        published_ports:
+          - "80:5000"
