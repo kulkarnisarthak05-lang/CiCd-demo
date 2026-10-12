@@ -1,0 +1,25 @@
+---
+- name: Deploy app container
+  hosts: app
+  become: yes
+  tasks:
+    - name: Install Docker
+      ansible.builtin.dnf:
+        name: docker
+        state: present
+        update_cache: yes
+    - name: Make sure Docker is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: yes
+    - name: Run the application container
+      community.docker.docker_container:
+        name: myapp
+        image: "{{ image }}"
+        pull: true
+        state: started
+        recreate: true
+        restart_policy: always
+        published_ports:
+          - "80:5000"
